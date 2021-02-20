@@ -1,56 +1,47 @@
 import sys
 import pygame
 from pygame.locals import *
-import musica
 import random
 import var
 import conexion
 import metodos
 
-musica = [musica]
 
-
-def evasor(self):
+def covidSurvival(self):
     anchoVen = 1920
     altoVen = 1080
     colorVen = (255, 255, 255)
     colorFondo = (0, 0, 0)
     FPS = 60
-    tamanoVill = 15
-    tamanoMaxVill = 60
-    tamanoMinVill = 1
-    velMaxVill = 8
-    tasaNuevoVill = 6
+    tamMinVirus = 15
+    tamMaxVirus = 90
+    velMinVirus = 5
+    velMaxVirus = 8
+    tasaVirus = 8
     tasaMovJug = 6
     op_menu = 1
     op_musica = 1
     i = 1
 
-    # establece un pygame, la ventana y el cursor del ratón
     pygame.init()
     relojPrincipal = pygame.time.Clock()
-    superficieVentana = pygame.display.set_mode((anchoVen, altoVen), FULLSCREEN)
-    pygame.display.set_caption('Evasor')
+    formaVen = pygame.display.set_mode((anchoVen, altoVen), FULLSCREEN)
+    pygame.display.set_caption('Covid Survival')
     pygame.mouse.set_visible(False)
 
-    # establece las fuentes
-    fuente = pygame.font.SysFont("Arial", 48)
+    font = pygame.font.SysFont("Arial", 48)
 
-    # establece los sonidos
-    sonidoJuegoTerminado = pygame.mixer.Sound('juegoterminado.wav')
-    sonidoJuegoTerminado.set_volume(0.1)
-    pygame.mixer.music.load('gobierno.mp3')
-    pygame.mixer.music.set_volume(0.1)
+    ending = pygame.mixer.Sound('musica/ending.ogg')
+    ending.set_volume(0.2)
+    pygame.mixer.music.load('musica/arex.ogg')
+    pygame.mixer.music.set_volume(0.2)
 
-    # establece las imagenes
-    imagenJugador = pygame.image.load('jugador2.png')
-    rectanguloJugador = imagenJugador.get_rect()
-    imagenVillano = pygame.image.load('covid2.png')
+    imgJug = pygame.image.load('imagenes/jugador2.png')
+    rectJug = imgJug.get_rect()
+    imgVirus = pygame.image.load('imagenes/covid2.png')
+    virus = []
 
-    # Muestra la pantalla inicial
-    metodos.dibujarTexto('Esquiva el bicho', fuente, superficieVentana, (anchoVen / 3), (altoVen / 4),
-                         colorVen)
-    metodos.dibujarTexto('Presione una tecla para comenzar.', fuente, superficieVentana, (anchoVen / 3),
+    metodos.showText('Presiona cualquier tecla para comenzar.', font, formaVen, (anchoVen / 3),
                          (altoVen / 3), colorVen)
     pygame.display.update()
     metodos.esperarTeclaJugador()
@@ -58,18 +49,39 @@ def evasor(self):
     puntmax = var.puntmax
     pygame.mixer.music.play(0, 0.0)
     while True:
-        # establece el comienzo del juego
-        villanos = []
+        virus = []
         punt = 0
-        rectanguloJugador.topleft = (anchoVen / 2, altoVen / 2)
+        rectJug.topleft = (anchoVen / 2, altoVen / 2)
         moverIzquierda = moverDerecha = moverArriba = moverAbajo = False
-        trucoReversa = trucoLento = pause = False
+        pause = False
         contadorpausa = False
-        contadorAgregarVillano = 0
+        contVirus = 0
 
         while True:  # el ciclo del juego se mantiene mientras se este jugando
             if not pause:
-                punt += 1  # incrementa la puntuación
+                punt += 1
+                if 0 <= punt < 1000:
+                    imgJug = pygame.image.load('imagenes/jugador2.png')
+                    velMaxVirus = 8
+                    tasaVirus = 6
+                elif 1000 <= punt < 2000:
+                    imgJug = pygame.image.load('imagenes/jugador3.png')
+                    velMaxVirus = 12
+                    tasaVirus = 6
+                elif 2000 <= punt < 3000:
+                    imgJug = pygame.image.load('imagenes/jugador4.jpg')
+                    velMaxVirus = 18
+                    tasaVirus = 4
+                elif 3000 <= punt < 4000:
+                    imgJug = pygame.image.load('imagenes/jugador5.png')
+                    velMaxVirus = 24
+                    tasaVirus = 4
+                elif 4000 <= punt:
+                    imgJug = pygame.image.load('imagenes/jugador6.jpg')
+                    velMaxVirus = 28
+                    tasaVirus = 2
+
+
 
             for evento in pygame.event.get():
                 if evento.type == QUIT:
@@ -80,18 +92,13 @@ def evasor(self):
                         metodos.terminar()
                     # menu principal
                     if evento.key == pygame.K_q:
-                        op_menu = metodos.generar_menu(op_menu, superficieVentana, colorFondo, anchoVen,
-                                                       altoVen, fuente, relojPrincipal, colorVen)
+                        op_menu = metodos.generar_menu(op_menu, formaVen, colorFondo, anchoVen,
+                                                       altoVen, font, relojPrincipal, colorVen)
                     # menu musica
                     if evento.key == pygame.K_m:
-                        i = metodos.generar_menu_musica(op_musica, superficieVentana, colorFondo, anchoVen,
-                                                        altoVen, fuente, relojPrincipal, colorVen, i)
-                    # invertir el movimiento con la z
-                    if evento.key == ord('z'):
-                        trucoReversa = True
-                    # ralentizar el movimiento con la z
-                    if evento.key == ord('x'):
-                        trucoLento = True
+                        i = metodos.generar_menu_musica(op_musica, formaVen, colorFondo, anchoVen,
+                                                        altoVen, font, relojPrincipal, colorVen, i)
+
                     # pausar el juego con el espacio
                     if evento.key == K_SPACE:
 
@@ -116,16 +123,9 @@ def evasor(self):
                         moverAbajo = True
 
                 if evento.type == KEYUP:
-                    if evento.key == ord('z'):
-                        trucoReversa = False
-                        punt = 0
-                    if evento.key == ord('x'):
-                        trucoLento = False
-                        punt = 0
                     if evento.key == K_SPACE and contadorpausa == 0:
                         pause = False
                         contadorpausa = False
-
                     if evento.key == K_LEFT or evento.key == ord('a'):
                         moverIzquierda = False
                     if evento.key == K_RIGHT or evento.key == ord('d'):
@@ -136,132 +136,109 @@ def evasor(self):
                         moverAbajo = False
 
                 if evento.type == MOUSEMOTION:
-                    # Si se mueve el ratón, este se mueve al lugar donde esté el cursor.
-                    rectanguloJugador.move_ip(evento.pos[0] - rectanguloJugador.centerx,
-                                              evento.pos[1] - rectanguloJugador.centery)
+                    rectJug.move_ip(evento.pos[0] - rectJug.centerx,
+                                              evento.pos[1] - rectJug.centery)
             if op_menu == 1:
-                # Añade villanos en la parte superior de la pantalla, de ser necesarios.
-                if not trucoReversa and not trucoLento and not pause:
-                    contadorAgregarVillano += 1
-                if contadorAgregarVillano == tasaNuevoVill:
-                    contadorAgregarVillano = 0
-                    tamanoVillano = random.randint(tamanoVill, tamanoMaxVill)
-                    nuevoVillano = {
-                        'rect': pygame.Rect(random.randint(0, anchoVen - tamanoVillano), 0 - tamanoVillano,
-                                            tamanoVillano,
-                                            tamanoVillano),
-                        'velocidad': random.randint(tamanoMinVill, velMaxVill),
-                        'superficie': pygame.transform.scale(imagenVillano, (tamanoVillano, tamanoVillano)),
+                # Añadir virus
+                if not pause:
+                    contVirus += 1
+                if contVirus >= tasaVirus:
+                    contVirus = 0
+                    tamFinVirus = random.randint(tamMinVirus, tamMaxVirus)
+                    nuevoVirus = {
+                        'virus': pygame.Rect(random.randint(0, anchoVen - tamFinVirus),
+                                             0 - tamFinVirus,tamFinVirus,tamFinVirus),
+                        'velocidad': random.randint(velMinVirus, velMaxVirus),
+                        'superficie': pygame.transform.scale(imgVirus, (tamFinVirus, tamFinVirus)),
                     }
 
-                    villanos.append(nuevoVillano)
+                    virus.append(nuevoVirus)
 
-                # Mueve los villanos hacia abajo.
-                for v in villanos:
-                    if not trucoReversa and not trucoLento and not pause:
-                        v['rect'].move_ip(0, v['velocidad'])
-                    elif trucoReversa:
-                        v['rect'].move_ip(0, -5)
-                    elif trucoLento:
-                        v['rect'].move_ip(0, 1)
+                # Mover virus
+                for v in virus:
+                    if not pause:
+                        v['virus'].move_ip(0, v['velocidad'])
                     elif pause:
-                        v['rect'].move_ip(0, 0)
+                        v['virus'].move_ip(0, 0)
 
-                # Elimina los villanos que han caido por debajo.
-                for v in villanos:
-                    if v['rect'].top > altoVen:
-                        villanos.remove(v)
+                # Elimina los virus que han caido por debajo.
+                for v in virus:
+                    if v['virus'].top > altoVen:
+                        virus.remove(v)
             if op_menu == 2:
-                # Añade villanos en la parte inferior de la pantalla, de ser necesarios.
-                if not trucoReversa and not trucoLento and not pause:
-                    contadorAgregarVillano += 1
-                if contadorAgregarVillano == tasaNuevoVill:
-                    contadorAgregarVillano = 0
-                    tamanoVillano = random.randint(tamanoVill, tamanoMaxVill)
-                    nuevoVillano = {
-                        'rect': pygame.Rect(random.randint(0, anchoVen - tamanoVillano),
-                                            altoVen + tamanoVillano,
-                                            tamanoVillano, tamanoVillano),
-                        'velocidad': random.randint(tamanoMinVill, velMaxVill),
-                        'superficie': pygame.transform.scale(imagenVillano, (tamanoVillano, tamanoVillano)),
+                if not pause:
+                    contVirus += 1
+                if contVirus >= tasaVirus:
+                    contVirus = 0
+                    tamFinVirus = random.randint(tamMinVirus, tamMaxVirus)
+                    nuevoVirus = {
+                        'virus': pygame.Rect(random.randint(0, anchoVen - tamFinVirus),
+                                             altoVen + tamFinVirus,tamFinVirus, tamFinVirus),
+                        'velocidad': random.randint(velMinVirus, velMaxVirus),
+                        'superficie': pygame.transform.scale(imgVirus, (tamFinVirus, tamFinVirus)),
                     }
-                    villanos.append(nuevoVillano)
-                # Mueve los villanos hacia arriba.
-                for v in villanos:
-                    if not trucoReversa and not trucoLento and not pause:
-                        v['rect'].move_ip(0, -v['velocidad'])
-                    elif trucoReversa:
-                        v['rect'].move_ip(0, 5)
-                    elif trucoLento:
-                        v['rect'].move_ip(0, -1)
+                    virus.append(nuevoVirus)
+                # Mueve los virus hacia arriba.
+                for v in virus:
+                    if not pause:
+                        v['virus'].move_ip(0, -v['velocidad'])
                     elif pause:
-                        v['rect'].move_ip(0, 0)
+                        v['virus'].move_ip(0, 0)
 
-                # Elimina los villanos que tocado techo.
-                for v in villanos[:]:
-                    if v['rect'].bottom < 0:
-                        villanos.remove(v)
+                # Elimina los virus que tocado techo.
+                for v in virus[:]:
+                    if v['virus'].bottom < 0:
+                        virus.remove(v)
 
-            # Mueve el jugador.
-            if moverIzquierda and rectanguloJugador.left > 0:
-                rectanguloJugador.move_ip(-1 * tasaMovJug, 0)
-            if moverDerecha and rectanguloJugador.right < anchoVen:
-                rectanguloJugador.move_ip(tasaMovJug, 0)
-            if moverArriba and rectanguloJugador.top > 0:
-                rectanguloJugador.move_ip(0, -1 * tasaMovJug)
-            if moverAbajo and rectanguloJugador.bottom < altoVen:
-                rectanguloJugador.move_ip(0, tasaMovJug)
+            if moverIzquierda and rectJug.left > 0:
+                rectJug.move_ip(-1 * tasaMovJug, 0)
+            if moverDerecha and rectJug.right < anchoVen:
+                rectJug.move_ip(tasaMovJug, 0)
+            if moverArriba and rectJug.top > 0:
+                rectJug.move_ip(0, -1 * tasaMovJug)
+            if moverAbajo and rectJug.bottom < altoVen:
+                rectJug.move_ip(0, tasaMovJug)
 
-            # Mueve el cursor del ratón hacia el jugador.
-            pygame.mouse.set_pos(rectanguloJugador.centerx, rectanguloJugador.centery)
+            # Posiciona el jugador en el lugar el cursor
+            pygame.mouse.set_pos(rectJug.centerx, rectJug.centery)
 
-            # Dibuja el mundo del juego en la ventana.
-            superficieVentana.fill(colorFondo)
+            formaVen.fill(colorFondo)
+            formaVen.blit(imgJug, rectJug)
 
-            # Dibuja el punt y el punt máximo
-            metodos.dibujarTexto('Puntuación: %s' % (punt), fuente, superficieVentana, 10, 0, colorVen)
-            metodos.dibujarTexto('Mejor puntuación: %s' % (puntmax), fuente, superficieVentana, 10, 40,
+            metodos.showText('Puntuación: %s' % (punt), font, formaVen, 10, 0, colorVen)
+            metodos.showText('Mejor puntuación: %s' % (puntmax), font, formaVen, 10, 40,
                                  colorVen)
 
-            # Dibuja el rectángulo del jugador
-            superficieVentana.blit(imagenJugador, rectanguloJugador)
-
-            # Dibuja cada villano
-            for v in villanos:
-                superficieVentana.blit(v['superficie'], v['rect'])
+            # Dibujar virus
+            for v in virus:
+                formaVen.blit(v['superficie'], v['virus'])
 
             pygame.display.update()
 
-            # Verifica si algún villano impactó en el jugador.
-            if metodos.jugadorGolpeaVillano(rectanguloJugador, villanos):
+            # Comprobar contactos villano-jugador
+            if metodos.comprobarContacto(rectJug, virus):
                 if punt > puntmax:
                     puntmax = punt  # Establece nuevo punt máximo
-                    conexion.Conexion.modifJug(var.jugador,puntmax)
+                    conexion.Conexion.modifJug(var.jugador, puntmax)
                 break
 
             relojPrincipal.tick(FPS)
 
-        # Detiene el juego y muestra "Juego Terminado"
-        # pygame.mixer.music.stop()
-        # sonidoJuegoTerminado.play()
-        pygame.mixer.music.load('elxokas.mp3')
-        pygame.mixer.music.set_volume(0.3)
-        pygame.mixer.music.play(0, 0.0)
+        pygame.mixer.music.pause()
+        ending.play()
 
-        metodos.dibujarTexto('Juego Terminado', fuente, superficieVentana, (anchoVen / 3), (altoVen / 3),
+
+        metodos.showText('Juego Terminado', font, formaVen, (anchoVen / 3), (altoVen / 3),
                              colorVen)
-        metodos.dibujarTexto('Presione una tecla para jugar de nuevo.', fuente, superficieVentana,
+        metodos.showText('Presiona cualquier tecla para jugar de nuevo.', font, formaVen,
                              (anchoVen / 3),
                              (altoVen / 2), colorVen)
         pygame.display.update()
 
         metodos.esperarTeclaJugador()
 
-        # sonidoJuegoTerminado.stop()
-        pygame.mixer.music.load('Nigths.mp3')
-        pygame.mixer.music.set_volume(0.1)
-        pygame.mixer.music.play(0, 0.0)
-
+        ending.stop()
+        pygame.mixer.music.unpause()
 
 def terminar():
     pygame.quit()
@@ -279,21 +256,21 @@ def esperarTeclaJugador():
                 return
 
 
-def jugadorGolpeaVillano(rectanguloJugador, villanos):
-    for v in villanos:
-        if rectanguloJugador.colliderect(v['rect']):
+def comprobarContacto(rectJug, virus):
+    for v in virus:
+        if rectJug.colliderect(v['virus']):
             return True
     return False
 
 
-def dibujarTexto(texto, fuente, superficie, x, y, colorVen):
-    objetotexto = fuente.render(texto, 1, colorVen)
+def showText(texto, font, superficie, x, y, colorVen):
+    objetotexto = font.render(texto, 1, colorVen)
     rectangulotexto = objetotexto.get_rect()
     rectangulotexto.topleft = (x, y)
     superficie.blit(objetotexto, rectangulotexto)
 
 
-def generar_menu(op_menu, superficieVentana, colorFondo, anchoVen, altoVen, fuente, relojPrincipal,
+def generar_menu(op_menu, formaVen, colorFondo, anchoVen, altoVen, font, relojPrincipal,
                  colorVen):
     otra_pantalla = True
     op = op_menu
@@ -301,9 +278,7 @@ def generar_menu(op_menu, superficieVentana, colorFondo, anchoVen, altoVen, fuen
         for evento in pygame.event.get():
             if evento.type == pygame.KEYDOWN:
                 if evento.key == ord('q'):
-                    # Ocultar pantalla
                     otra_pantalla = False
-                    # color del menu
                 if evento.key == ord('1'):
                     op = 1
                     otra_pantalla = False
@@ -313,41 +288,38 @@ def generar_menu(op_menu, superficieVentana, colorFondo, anchoVen, altoVen, fuen
                 if evento.key == ord('0') or evento.key == K_ESCAPE:
                     terminar()
 
-        superficieVentana.fill(colorFondo)
+        formaVen.fill(colorFondo)
         # dibujar
-        dibujarTexto('Menu:', fuente, superficieVentana, (anchoVen / 3), (altoVen / 4), colorVen)
-        dibujarTexto('0-Salir de juego', fuente, superficieVentana, (anchoVen / 3), (altoVen / 3) + 50,
+        showText('Menu:', font, formaVen, (anchoVen / 3), (altoVen / 4), colorVen)
+        showText('0-Salir de juego', font, formaVen, (anchoVen / 3), (altoVen / 3) + 50,
                      colorVen)
-        dibujarTexto('1-Primera fase', fuente, superficieVentana, (anchoVen / 3), (altoVen / 3) + 100,
+        showText('1-Primera fase', font, formaVen, (anchoVen / 3), (altoVen / 3) + 100,
                      colorVen)
-        dibujarTexto('2-Segunda fase', fuente, superficieVentana, (anchoVen / 3), (altoVen / 3) + 150,
-                     colorVen)
-        dibujarTexto('3-Guardar partida', fuente, superficieVentana, (anchoVen / 3), (altoVen / 3) + 200,
+        showText('2-Segunda fase', font, formaVen, (anchoVen / 3), (altoVen / 3) + 150,
                      colorVen)
         pygame.display.update()
         relojPrincipal.tick(5)
     return op
 
 
-def generar_menu_musica(op_menu, superficieVentana, colorFondo, anchoVen, altoVen, fuente, relojPrincipal,
+def generar_menu_musica(op_menu, formaVen, colorFondo, anchoVen, altoVen, font, relojPrincipal,
                         colorVen, i):
     otra_pantalla = True
     op = op_menu
-    lista = ['gobierno.mp3', 'InTE.mp3', 'CastleOG.mp3', 'Numb.mp3', 'Nigths.mp3', 'Counting.mp3', 'Demons.mp3',
-             '7years.mp3']
+    lista = ['musica/arex.ogg', 'musica/batalla.ogg', 'musica/biological.ogg', 'musica/heroic.ogg', 'musica/planeta.ogg',
+             'musica/resilience.ogg']
     while otra_pantalla:
         for evento in pygame.event.get():
             if evento.type == pygame.KEYDOWN:
                 if evento.key == ord('m'):
                     # Ocultar pantalla
                     otra_pantalla = False
-                    # color del menu
                 if evento.key == ord('1'):
                     op = 1
                     pygame.mixer.music.load(lista[i])
-                    pygame.mixer.music.set_volume(0.1)
+                    pygame.mixer.music.set_volume(0.2)
                     pygame.mixer.music.play(-1, 0.0)
-                    if i < 7:
+                    if i < 5:
                         i = i + 1
                     else:
                         i = 0
@@ -355,32 +327,31 @@ def generar_menu_musica(op_menu, superficieVentana, colorFondo, anchoVen, altoVe
                     otra_pantalla = False
                 if evento.key == ord('2'):
                     op = 2
-                    pygame.mixer.music.load('InTE.mp3')
-                    pygame.mixer.music.queue('CastleOG.mp3')
-                    pygame.mixer.music.queue('Numb.mp3')
-                    pygame.mixer.music.set_volume(0.1)
+                    pygame.mixer.music.load('musica/arex.ogg')
+                    pygame.mixer.music.queue( 'musica/batalla.ogg')
+                    pygame.mixer.music.queue('musica/biological.ogg')
+                    pygame.mixer.music.set_volume(0.2)
                     pygame.mixer.music.play(0, 0.0)
                     otra_pantalla = False
                 if evento.key == ord('3'):
                     op = 3
-                    pygame.mixer.music.load('Nigths.mp3')
-                    pygame.mixer.music.queue('Counting.mp3')
-                    pygame.mixer.music.queue('Demons.mp3')
-                    pygame.mixer.music.queue('7years.mp3')
-                    pygame.mixer.music.set_volume(0.1)
+                    pygame.mixer.music.load('musica/ending.ogg')
+                    pygame.mixer.music.queue('musica/heroic.ogg')
+                    pygame.mixer.music.queue('musica/planeta.ogg')
+                    pygame.mixer.music.queue('musica/resilience.ogg')
+                    pygame.mixer.music.set_volume(0.2)
                     pygame.mixer.music.play(0, 0.0)
                     otra_pantalla = False
                 if evento.key == ord('0') or evento.key == K_ESCAPE:
                     otra_pantalla = False
 
-        superficieVentana.fill(colorFondo)
-        # dibujar
-        dibujarTexto('Menu:', fuente, superficieVentana, (anchoVen / 3), (altoVen / 4), colorVen)
-        dibujarTexto('0-Salir', fuente, superficieVentana, (anchoVen / 3), (altoVen / 3) + 50, colorVen)
-        dibujarTexto('1-Siguiente canción', fuente, superficieVentana, (anchoVen / 3), (altoVen / 3) + 100,
+        formaVen.fill(colorFondo)
+        showText('Menu:', font, formaVen, (anchoVen / 3), (altoVen / 4), colorVen)
+        showText('0-Salir', font, formaVen, (anchoVen / 3), (altoVen / 3) + 50, colorVen)
+        showText('1-Siguiente canción', font, formaVen, (anchoVen / 3), (altoVen / 3) + 100,
                      colorVen)
-        dibujarTexto('2-Lista LP', fuente, superficieVentana, (anchoVen / 3), (altoVen / 3) + 150, colorVen)
-        dibujarTexto('3-Lista A', fuente, superficieVentana, (anchoVen / 3), (altoVen / 3) + 200, colorVen)
+        showText('2-Lista A', font, formaVen, (anchoVen / 3), (altoVen / 3) + 150, colorVen)
+        showText('3-Lista B', font, formaVen, (anchoVen / 3), (altoVen / 3) + 200, colorVen)
         pygame.display.update()
         relojPrincipal.tick(5)
     return op

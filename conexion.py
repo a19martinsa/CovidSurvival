@@ -43,9 +43,29 @@ class Conexion():
                 if not b:
                     Conexion.altaJugador(var.jugador)
                 Conexion.cargarPuntmax(var.jugador)
-                metodos.evasor(self)
+                metodos.covidSurvival(self)
         except Exception as error:
             print('Partida acabada %s' % str(error))
+            return None
+
+    def guardarJugador(self):
+        try:
+            query = QtSql.QSqlQuery()
+            var.jugador = var.ui.ltNombre.text()
+            b = False
+            if var.jugador != '':
+                query.prepare('select nombre from jugadores ')
+                if query.exec_():
+                    while query.next():
+                        if query.value(0) == var.jugador:
+                            b = True
+                else:
+                    print("Error comparar jugadores: ", query.lastError().text())
+                if not b:
+                    Conexion.altaJugador(var.jugador)
+                Conexion.cargarPuntmax(var.jugador)
+        except Exception as error:
+            print('Jugador guardado  %s' % str(error))
             return None
 
     def altaJugador(jugador):
