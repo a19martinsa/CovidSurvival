@@ -41,7 +41,7 @@ def covidSurvival(self):
     imgVirus = pygame.image.load('imagenes/covid2.png')
     virus = []
 
-    metodos.showText('Presiona cualquier tecla para comenzar.', font, formaVen, (anchoVen / 3),
+    metodos.showText('Presiona cualquier tecla para comenzar.', font, formaVen, (anchoVen / 3)-120,
                          (altoVen / 3), colorVen)
     pygame.display.update()
     metodos.esperarTeclaJugador()
@@ -208,7 +208,8 @@ def covidSurvival(self):
             metodos.showText('Puntuación: %s' % (punt), font, formaVen, 10, 0, colorVen)
             metodos.showText('Mejor puntuación: %s' % (puntmax), font, formaVen, 10, 40,
                                  colorVen)
-
+            metodos.showText('Menus: Q/M', font, formaVen, 10, 80,colorVen)
+            metodos.showText('Pausar: Space Bar', font, formaVen, 10, 120, colorVen)
             # Dibujar virus
             for v in virus:
                 formaVen.blit(v['superficie'], v['virus'])
@@ -231,7 +232,7 @@ def covidSurvival(self):
         metodos.showText('Juego Terminado', font, formaVen, (anchoVen / 3), (altoVen / 3),
                              colorVen)
         metodos.showText('Presiona cualquier tecla para jugar de nuevo.', font, formaVen,
-                             (anchoVen / 3),
+                             (anchoVen / 3)-120,
                              (altoVen / 2), colorVen)
         pygame.display.update()
 
@@ -289,13 +290,12 @@ def generar_menu(op_menu, formaVen, colorFondo, anchoVen, altoVen, font, relojPr
                     terminar()
 
         formaVen.fill(colorFondo)
-        # dibujar
-        showText('Menu:', font, formaVen, (anchoVen / 3), (altoVen / 4), colorVen)
+        showText('Menu Principal:', font, formaVen, (anchoVen / 3), (altoVen / 4), colorVen)
         showText('0-Salir de juego', font, formaVen, (anchoVen / 3), (altoVen / 3) + 50,
                      colorVen)
-        showText('1-Primera fase', font, formaVen, (anchoVen / 3), (altoVen / 3) + 100,
+        showText('1-Modo caida', font, formaVen, (anchoVen / 3), (altoVen / 3) + 100,
                      colorVen)
-        showText('2-Segunda fase', font, formaVen, (anchoVen / 3), (altoVen / 3) + 150,
+        showText('2-Modo ascenso', font, formaVen, (anchoVen / 3), (altoVen / 3) + 150,
                      colorVen)
         pygame.display.update()
         relojPrincipal.tick(5)
@@ -312,7 +312,6 @@ def generar_menu_musica(op_menu, formaVen, colorFondo, anchoVen, altoVen, font, 
         for evento in pygame.event.get():
             if evento.type == pygame.KEYDOWN:
                 if evento.key == ord('m'):
-                    # Ocultar pantalla
                     otra_pantalla = False
                 if evento.key == ord('1'):
                     op = 1
@@ -346,7 +345,7 @@ def generar_menu_musica(op_menu, formaVen, colorFondo, anchoVen, altoVen, font, 
                     otra_pantalla = False
 
         formaVen.fill(colorFondo)
-        showText('Menu:', font, formaVen, (anchoVen / 3), (altoVen / 4), colorVen)
+        showText('Menu del reproducción:', font, formaVen, (anchoVen / 3), (altoVen / 4), colorVen)
         showText('0-Salir', font, formaVen, (anchoVen / 3), (altoVen / 3) + 50, colorVen)
         showText('1-Siguiente canción', font, formaVen, (anchoVen / 3), (altoVen / 3) + 100,
                      colorVen)
